@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public enum BattleState { START, PLAYERTURN, ENEMYTURN, WON, LOST }
 
@@ -19,6 +20,8 @@ public class BattleSystem : MonoBehaviour
 
     public TextMeshProUGUI dialogueText;
     public Button[] answerButtons;
+    public Button nextRoundButton;
+    public Button backToHomeButton;
 
     public BattleHUD playerHUD;
     public BattleHUD enemyHUD;
@@ -26,24 +29,45 @@ public class BattleSystem : MonoBehaviour
     public BattleState state;
 
     private Question currentQuestion;
-    private List<Question> remainingQuestions = new List<Question>
-    {
-        new Question("Who developed C?", new string[] { "Dennis Ritchie", "Bjarne Stroustrup", "James Gosling", "Guido van Rossum" }, "Dennis Ritchie"),
-        new Question("Which language is used for Android app development?", new string[] { "C#", "Swift", "Kotlin", "Ruby" }, "Kotlin"),
-        new Question("What does HTML stand for?", new string[] { "Hyper Text Markup Language", "High Tech Modern Layout", "Hyperlink and Text Management Language", "Home Tool Markup Language" }, "Hyper Text Markup Language"),
-        new Question("Who developed Python?", new string[] { "Guido van Rossum", "Linus Torvalds", "Mark Zuckerberg", "Bill Gates" }, "Guido van Rossum"),
-        new Question("What year was Java released?", new string[] { "1991", "1995", "2000", "1989" }, "1995"),
-        new Question("Which of these is a compiled language?", new string[] { "Python", "JavaScript", "C", "Ruby" }, "C"),
-    };
+    private List<Question> remainingQuestions;
 
     void Start()
     {
+        foreach (Button btn in answerButtons)
+        {
+            btn.gameObject.SetActive(false);
+        }
+
+        nextRoundButton.gameObject.SetActive(false);
+        backToHomeButton.gameObject.SetActive(false);
+
+        nextRoundButton.onClick.AddListener(NextRound);
+        backToHomeButton.onClick.AddListener(BackToHome);
+
         state = BattleState.START;
+
+        // Ensure QuestionManager is initialized
+        if (QuestionManager.Instance == null)
+        {
+            Debug.LogError("QuestionManager Instance is null! Ensure it exists in the scene.");
+        }
+        else
+        {
+            if (QuestionManager.Instance.currentQuestions == null || QuestionManager.Instance.currentQuestions.Count == 0)
+            {
+                QuestionManager.Instance.LoadQuestions("Level_0");
+            }
+
+            remainingQuestions = new List<Question>(QuestionManager.Instance.currentQuestions);
+        }
+
         StartCoroutine(SetupBattle());
     }
 
+
     IEnumerator SetupBattle()
     {
+
         GameObject player = Instantiate(playerPrefab, playerBattleStation);
         playerUnit = player.GetComponent<Unit>();
 
@@ -71,14 +95,14 @@ public class BattleSystem : MonoBehaviour
             return;
         }
 
-        if (currentQuestion == null) 
+        if (currentQuestion == null)
         {
             int index = Random.Range(0, remainingQuestions.Count);
             currentQuestion = remainingQuestions[index];
             remainingQuestions.RemoveAt(index);
         }
 
-        dialogueText.text = currentQuestion.questionText; // Display the question immediately
+        dialogueText.text = currentQuestion.questionText;
 
         foreach (Button btn in answerButtons)
         {
@@ -141,34 +165,23 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator PlayerWrongAnswer()
     {
-        dialogueText.text = "Wrong! The enemy attacks!";
-
-        foreach (Button btn in answerButtons)
-        {
-            btn.gameObject.SetActive(false);
-        }
-
-        yield return new WaitForSeconds(1.5f);
-
         state = BattleState.ENEMYTURN;
-        StartCoroutine(EnemyTurn());
+        yield return StartCoroutine(EnemyTurn());
     }
 
     IEnumerator EnemyTurn()
     {
-        dialogueText.text = enemyUnit.unitName + " attacks!";
+
+        dialogueText.text = "Wrong! " + enemyUnit.unitName + " attacks!";
+        yield return new WaitForSeconds(1.5f);
 
         foreach (Button btn in answerButtons)
         {
             btn.gameObject.SetActive(false);
         }
 
-        yield return new WaitForSeconds(1.5f);
-
         bool isDead = playerUnit.TakeDamage(enemyUnit.damage);
         playerHUD.SetHP(playerUnit.currentHP);
-
-        yield return new WaitForSeconds(1.5f);
 
         if (isDead)
         {
@@ -184,21 +197,64 @@ public class BattleSystem : MonoBehaviour
 
     void EndBattle()
     {
-        if (state == BattleState.WON)
-        {
-            dialogueText.text = "You won the battle!";
-        }
-        else if (state == BattleState.LOST)
-        {
-            dialogueText.text = "You were defeated...";
-        }
-
         foreach (Button btn in answerButtons)
         {
             btn.gameObject.SetActive(false);
         }
+
+        if (state == BattleState.WON)
+        {
+            dialogueText.text = "You won the battle!";
+            foreach (Button btn in answerButtons)
+            {
+                btn.gameObject.SetActive(false);
+            }
+            nextRoundButton.gameObject.SetActive(true);
+            nextRoundButton.GetComponentInChildren<TextMeshProUGUI>().text = "Next Round";
+        }
+        else if (state == BattleState.LOST)
+        {
+
+            dialogueText.text = "You were defeated...";
+            foreach (Button btn in answerButtons)
+            {
+                btn.gameObject.SetActive(false);
+            }
+            backToHomeButton.gameObject.SetActive(true);
+            backToHomeButton.GetComponentInChildren<TextMeshProUGUI>().text = "Home";
+        }
+    }
+
+    public void NextRound()
+    {
+        if (state == BattleState.WON)
+        {
+            string currentScene = SceneManager.GetActiveScene().name;
+
+            if (currentScene == "Level_0")
+            {
+                QuestionManager.Instance.LoadQuestions("Level_1"); // Load Level 1 questions
+                SceneManager.LoadScene("Level_1");
+            }
+            else if (currentScene == "Level_1")
+            {
+                QuestionManager.Instance.LoadQuestions("Level_2"); // Load Level 2 questions
+                SceneManager.LoadScene("Level_2");
+            }
+        }
+    }
+
+
+    public void BackToHome()
+    {
+        if (state == BattleState.LOST)
+        {
+            SceneManager.LoadScene("MainMenu");
+        }
+
     }
 }
+
 
 public class Question
 {
