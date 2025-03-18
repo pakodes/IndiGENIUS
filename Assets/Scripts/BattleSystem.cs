@@ -68,12 +68,12 @@ public class BattleSystem : MonoBehaviour
         }
         else
         {
-            if (QuestionManager.Instance.currentQuestions == null || QuestionManager.Instance.currentQuestions.Count == 0)
+            if (QuestionManager.Instance.CurrentQuestions == null || QuestionManager.Instance.CurrentQuestions.Count == 0)
             {
                 QuestionManager.Instance.LoadQuestions("Level_0");
             }
 
-            remainingQuestions = new List<Question>(QuestionManager.Instance.currentQuestions);
+            remainingQuestions = new List<Question>(QuestionManager.Instance.CurrentQuestions);
         }
 
         audioSource = GetComponent<AudioSource>();

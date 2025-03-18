@@ -5,9 +5,9 @@ public class QuestionManager : MonoBehaviour
 {
     public static QuestionManager Instance;
 
-    public List<Question> currentQuestions;
+    public List<Question> CurrentQuestions;
 
-    private Dictionary<string, List<Question>> levelQuestions = new Dictionary<string, List<Question>>()
+    private Dictionary<string, List<Question>> _levelQuestions = new Dictionary<string, List<Question>>()
     {
         // easy difficulty questions
         { "Level_0", new List<Question>
@@ -22,35 +22,35 @@ public class QuestionManager : MonoBehaviour
                 "Sun Microsystems"),
                 // 3
                 new Question("What was ARPANet?",
-                new String[] { "A computer network", "A programming language", "A computer virus", "A computer manufacturer" },
+                new string[] { "A computer network", "A programming language", "A computer virus", "A computer manufacturer" },
                 "A computer network"),
                 // 4
                 new Question("What does SQL stand for?",
-                new String[] { "Simple Query Language", "Structured Query Language", "System Query Language", "Standard Query Language" },
+                new string[] { "Simple Query Language", "Structured Query Language", "System Query Language", "Standard Query Language" },
                 "Structured Query Language"),
                 // 5
                 new Question("What is the full form of FORTRAN?",
-                new String[] { "Formatted Translation", "Formula Translation", "Format Translation", "Formula Transformer" },
+                new string[] { "Formatted Translation", "Formula Translation", "Format Translation", "Formula Transformer" },
                 "Formula Translation"),
                 // 6
                 new Question("Which company developed COBOL, FORTRAN, and RPG?",
-                new String[] { "Microsoft", "IBM", "Apple", "Google" },
+                new string[] { "Microsoft", "IBM", "Apple", "Google" },
                 "IBM"),
                 // 7
                 new Question("What is the function of JavaScript in web pages?",
-                new String[] { "Styling the page", "Adding interactivity", "Structuring the content", "Storing data" },
+                new string[] { "Styling the page", "Adding interactivity", "Structuring the content", "Storing data" },
                 "Adding interactivity"),
                 // 8
                 new Question("What is the foundation for modern operating systems?",
-                new String[] { "Windows", "UNIX", "MacOS", "Android" },
+                new string[] { "Windows", "UNIX", "MacOS", "Android" },
                 "UNIX"),
                 // 9
                 new Question("Which programming language is known for its ease of use?",
-                new String[] { "Java", "Python", "C", "JavaScript" },
+                new string[] { "Java", "Python", "C", "JavaScript" },
                 "Python"),
                 // 10
                 new Question("What is the primary use of Visual Basic?",
-                new String[] { "Designing visual graphics", "Creating Windows applications", "Visualizing data", "Building visual applications" },
+                new string[] { "Designing visual graphics", "Creating Windows applications", "Visualizing data", "Building visual applications" },
                 "Creating Windows applications"),
                 // 11
                 new Question("Which company created Swift?", 
@@ -66,14 +66,14 @@ public class QuestionManager : MonoBehaviour
                 "B"),
                 // 14
                 new Question("What language was developed by Google?", 
-                new string[] { "Dart", "Go", "Kotlin", "Swift" }, "
-                Go"),
+                new string[] { "Dart", "Go", "Kotlin", "Swift" }, 
+                "Go"),
                 // 15
                 new Question("What is the \"write once, run anywhere\" principle associated with?",
-                new String[] { "HTML", "Java", "JavaScript", "C++" },
+                new string[] { "HTML", "Java", "JavaScript", "C++" },
                 "Java")
+            }
         },
-
         // medium difficulty questions
         { "Level_1", new List<Question>
             {
@@ -103,11 +103,11 @@ public class QuestionManager : MonoBehaviour
                 "Logical programming"),
                 // 7
                 new Question("Who was known as the first computer programmer?",
-                new String[] { "Charles Babbage", "Alan Turing", "Ada Lovelace", "Mark Zuckerberg" },
+                new string[] { "Charles Babbage", "Alan Turing", "Ada Lovelace", "Mark Zuckerberg" },
                 "Ada Lovelace"),
                 // 8
                 new Question("What was JavaScript previously named?",
-                new String[] { "OldScript", "LiveScript", "TypeScript", "JS" },
+                new string[] { "OldScript", "LiveScript", "TypeScript", "JS" },
                 "LiveScript"),
                 // 9
                 new Question("Which of these was created first?", 
@@ -115,7 +115,7 @@ public class QuestionManager : MonoBehaviour
                 "Assembly"),
                 // 10
                 new Question("Which was considered as the first object-oriented programming language?",
-                new String[] { "Java", "Simula", "Smalltalk", "Ada" },
+                new string[] { "Java", "Simula", "Smalltalk", "Ada" },
                 "Simula")
             }
         },
@@ -127,23 +127,23 @@ public class QuestionManager : MonoBehaviour
                 // NOTE: these are the final questions
                 // 1
                 new Question("What was the programming language designed to program the Z3?",
-                new String[] { "Plankalkul", "X", "X", "X" },
+                new string[] { "Plankalkul", "X", "X", "X" },
                 "Plankalkul"),
                 // 2
                 new Question("What was the test that defined the standard for machine intelligence?",
-                new String[] { "Turing Test", "X", "X", "X" },
+                new string[] { "Turing Test", "X", "X", "X" },
                 "Turing Test"),
                 // 3
-                new Question("An early programming language used to translate insrtuctions into machine code automatically",
-                new String[] { "X", "X", "X", "Autocode" },
+                new Question("An early programming language used to translate instructions into machine code automatically",
+                new string[] { "X", "X", "X", "Autocode" },
                 "Autocode"),
                 // 4
                 new Question("What is the computing method that uses quantum mechanics?",
-                new String[] { "Quantum Computing", "X", "X", "X" },
+                new string[] { "Quantum Computing", "X", "X", "X" },
                 "Quantum Computing"),
                 // 5
                 new Question("It is a small, integrated circuit that performs the functions of a computer's CPU",
-                new String[] { "Microprocessor", "X", "X", "X" },
+                new string[] { "Microprocessor", "X", "X", "X" },
                 "Microprocessor")
             }
         }
@@ -164,10 +164,10 @@ public class QuestionManager : MonoBehaviour
 
     public void LoadQuestions(string levelName)
     {
-        if (levelQuestions.ContainsKey(levelName))
+        if (_levelQuestions.ContainsKey(levelName))
         {
-            List<Question> questions = new List<Question>(levelQuestions[levelName]);
-            currentQuestions = RandomizeAnswers(questions);
+            List<Question> questions = new List<Question>(_levelQuestions[levelName]);
+            CurrentQuestions = RandomizeAnswers(questions);
         }
     }
 
