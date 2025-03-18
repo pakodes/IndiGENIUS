@@ -4,16 +4,31 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.Audio;
 
 public enum BattleState { START, PLAYERTURN, ENEMYTURN, WON, LOST }
 
 public class BattleSystem : MonoBehaviour
 {
+    public AudioClip loseClip;
+    public AudioClip victoryClip;
+    public AudioClip playerHitClip;
+    public AudioClip enemyHitClip;
+    private AudioSource audioSource;
+
     public GameObject playerPrefab;
     public GameObject enemyPrefab;
 
     public Transform playerBattleStation;
     public Transform enemyBattleStation;
+
+    public GameObject playerHitEffectPrefab; 
+    public GameObject enemyHitEffectPrefab;
+
+    public float playerShakeDuration = 0.1f;
+    public float playerShakeMagnitude = 0.1f;
+    public float enemyShakeDuration = 0.2f;
+    public float enemyShakeMagnitude = 0.2f;
 
     Unit playerUnit;
     Unit enemyUnit;
@@ -59,6 +74,12 @@ public class BattleSystem : MonoBehaviour
             }
 
             remainingQuestions = new List<Question>(QuestionManager.Instance.currentQuestions);
+        }
+
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            Debug.LogError("AudioSource component is missing on the GameObject.");
         }
 
         StartCoroutine(SetupBattle());
@@ -147,6 +168,9 @@ public class BattleSystem : MonoBehaviour
         dialogueText.text = "Correct! You deal damage!";
         yield return new WaitForSeconds(1.5f);
 
+        // Trigger player attack sequence
+        yield return StartCoroutine(AttackSequence(playerBattleStation, enemyBattleStation, playerHitClip, playerHitEffectPrefab, playerShakeDuration, playerShakeMagnitude));
+
         bool isDead = enemyUnit.TakeDamage(playerUnit.damage);
         enemyHUD.SetHP(enemyUnit.currentHP);
 
@@ -171,7 +195,6 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator EnemyTurn()
     {
-
         dialogueText.text = "Wrong! " + enemyUnit.unitName + " attacks!";
         yield return new WaitForSeconds(1.5f);
 
@@ -179,6 +202,9 @@ public class BattleSystem : MonoBehaviour
         {
             btn.gameObject.SetActive(false);
         }
+
+        // Trigger enemy attack sequence
+        yield return StartCoroutine(AttackSequence(enemyBattleStation, playerBattleStation, enemyHitClip, enemyHitEffectPrefab, enemyShakeDuration, enemyShakeMagnitude));
 
         bool isDead = playerUnit.TakeDamage(enemyUnit.damage);
         playerHUD.SetHP(playerUnit.currentHP);
@@ -194,6 +220,33 @@ public class BattleSystem : MonoBehaviour
             AskQuestion();
         }
     }
+
+
+    IEnumerator AttackSequence(Transform attacker, Transform target, AudioClip hitClip, GameObject hitEffectPrefab, float shakeDuration, float shakeMagnitude)
+    {
+        // Play hit sound
+        if (hitClip != null && audioSource != null)
+        {
+            audioSource.clip = hitClip;
+            audioSource.Play();
+            Debug.Log("Playing hit sound.");
+        }
+        else
+        {
+            Debug.LogWarning("Hit clip or audio source is missing.");
+        }
+
+        // Trigger hit effect
+        if (hitEffectPrefab != null)
+        {
+            GameObject hitEffect = Instantiate(hitEffectPrefab, target.position, Quaternion.identity);
+            Destroy(hitEffect, 1f); // Destroy the effect after 1 second
+        }
+
+        // Trigger screen shake for attacker
+        yield return StartCoroutine(ScreenShake(attacker, shakeDuration, shakeMagnitude));
+    }
+
 
     void EndBattle()
     {
@@ -211,6 +264,12 @@ public class BattleSystem : MonoBehaviour
             }
             nextRoundButton.gameObject.SetActive(true);
             nextRoundButton.GetComponentInChildren<TextMeshProUGUI>().text = "Next Round";
+
+            if (victoryClip != null && audioSource != null)
+            {
+                audioSource.clip = victoryClip;
+                audioSource.Play();
+            }
         }
         else if (state == BattleState.LOST)
         {
@@ -221,7 +280,13 @@ public class BattleSystem : MonoBehaviour
                 btn.gameObject.SetActive(false);
             }
             backToHomeButton.gameObject.SetActive(true);
-            backToHomeButton.GetComponentInChildren<TextMeshProUGUI>().text = "Home";
+            backToHomeButton.GetComponentInChildren<TextMeshProUGUI>().text = "Try Again?";
+           
+            if (loseClip != null && audioSource != null)
+            {
+                audioSource.clip = loseClip;
+                audioSource.Play();
+            }
         }
     }
 
@@ -252,6 +317,26 @@ public class BattleSystem : MonoBehaviour
             SceneManager.LoadScene("MainMenu");
         }
 
+    }
+    // Add this method to the BattleSystem class
+    IEnumerator ScreenShake(Transform target, float duration, float magnitude)
+    {
+        Vector3 originalPosition = target.localPosition;
+        float elapsed = 0.0f;
+
+        while (elapsed < duration)
+        {
+            float x = Random.Range(-1f, 1f) * magnitude;
+            float y = Random.Range(-1f, 1f) * magnitude;
+
+            target.localPosition = new Vector3(x, y, originalPosition.z);
+
+            elapsed += Time.deltaTime;
+
+            yield return null;
+        }
+
+        target.localPosition = originalPosition;
     }
 }
 

@@ -8,11 +8,8 @@ public class Unit : MonoBehaviour
     public bool TakeDamage(int dmg)
     {
         currentHP -= dmg;
+        currentHP = Mathf.Clamp(currentHP, 0, maxHP); // Ensure currentHP does not go below 0
 
-        if(currentHP <= 0)
-            return true;
-        else
-            return false;    
-      
+        return currentHP <= 0;
     }
 }
