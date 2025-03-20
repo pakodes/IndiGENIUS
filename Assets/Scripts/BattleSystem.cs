@@ -10,20 +10,28 @@ public enum BattleState { START, PLAYERTURN, ENEMYTURN, WON, LOST }
 
 public class BattleSystem : MonoBehaviour
 {
+    public Image transitionPanel;
     public AudioClip loseClip;
     public AudioClip victoryClip;
     public AudioClip playerHitClip;
     public AudioClip enemyHitClip;
     private AudioSource audioSource;
+    public AudioSource bgmSource; 
+
+    private GameObject instantiatedPlayer;
+    private GameObject instantiatedEnemy;
 
     public GameObject playerPrefab;
     public GameObject enemyPrefab;
+    public GameObject playerAttackFXPrefab; 
+    public GameObject enemyAttackFXPrefab; 
 
     public Transform playerBattleStation;
     public Transform enemyBattleStation;
 
-    public GameObject playerHitEffectPrefab; 
-    public GameObject enemyHitEffectPrefab;
+    public TextMeshProUGUI progressText;
+  
+    
 
     public float playerShakeDuration = 0.1f;
     public float playerShakeMagnitude = 0.1f;
@@ -46,8 +54,12 @@ public class BattleSystem : MonoBehaviour
     private Question currentQuestion;
     private List<Question> remainingQuestions;
 
+    private ScreenShake screenShake;
+
     void Start()
     {
+        Debug.Log("BattleSystem Start called.");
+
         foreach (Button btn in answerButtons)
         {
             btn.gameObject.SetActive(false);
@@ -68,12 +80,18 @@ public class BattleSystem : MonoBehaviour
         }
         else
         {
+            Debug.Log("QuestionManager Instance found.");
             if (QuestionManager.Instance.CurrentQuestions == null || QuestionManager.Instance.CurrentQuestions.Count == 0)
             {
+                Debug.Log("Loading questions for Level_0.");
                 QuestionManager.Instance.LoadQuestions("Level_0");
             }
 
             remainingQuestions = new List<Question>(QuestionManager.Instance.CurrentQuestions);
+            Debug.Log("Remaining questions count: " + remainingQuestions.Count);
+
+            // Shuffle the questions
+            ShuffleQuestions(remainingQuestions);
         }
 
         audioSource = GetComponent<AudioSource>();
@@ -82,18 +100,39 @@ public class BattleSystem : MonoBehaviour
             Debug.LogError("AudioSource component is missing on the GameObject.");
         }
 
+        screenShake = Camera.main.GetComponent<ScreenShake>();
+
         StartCoroutine(SetupBattle());
     }
 
 
+    IEnumerator Transition(float duration, bool fadeIn)
+    {
+        float elapsedTime = 0f;
+        Color color = transitionPanel.color;
+
+        while (elapsedTime < duration)
+        {
+            float alpha = fadeIn ? (elapsedTime / duration) : (1 - (elapsedTime / duration));
+            color.a = alpha;
+            transitionPanel.color = color;
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        color.a = fadeIn ? 1 : 0;
+        transitionPanel.color = color;
+    }
     IEnumerator SetupBattle()
     {
+        Debug.Log("Setting up battle...");
 
-        GameObject player = Instantiate(playerPrefab, playerBattleStation);
-        playerUnit = player.GetComponent<Unit>();
+        instantiatedPlayer = Instantiate(playerPrefab, playerBattleStation);
+        playerUnit = instantiatedPlayer.GetComponent<Unit>();
 
-        GameObject enemy = Instantiate(enemyPrefab, enemyBattleStation);
-        enemyUnit = enemy.GetComponent<Unit>();
+        instantiatedEnemy = Instantiate(enemyPrefab, enemyBattleStation);
+        enemyUnit = instantiatedEnemy.GetComponent<Unit>();
 
         dialogueText.text = "A wild " + enemyUnit.unitName + " appears!";
 
@@ -161,6 +200,7 @@ public class BattleSystem : MonoBehaviour
         {
             StartCoroutine(PlayerWrongAnswer());
         }
+        UpdateProgress();
     }
 
     IEnumerator PlayerCorrectAnswer()
@@ -169,10 +209,10 @@ public class BattleSystem : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
 
         // Trigger player attack sequence
-        yield return StartCoroutine(AttackSequence(playerBattleStation, enemyBattleStation, playerHitClip, playerHitEffectPrefab, playerShakeDuration, playerShakeMagnitude));
+        yield return StartCoroutine(AttackSequence(instantiatedPlayer, instantiatedEnemy, playerHitClip, true));
 
         bool isDead = enemyUnit.TakeDamage(playerUnit.damage);
-        enemyHUD.SetHP(enemyUnit.currentHP);
+        enemyHUD.SetHP(enemyUnit.currentHP, enemyUnit.maxHP); // Update enemy health bar
 
         currentQuestion = null;
 
@@ -204,10 +244,10 @@ public class BattleSystem : MonoBehaviour
         }
 
         // Trigger enemy attack sequence
-        yield return StartCoroutine(AttackSequence(enemyBattleStation, playerBattleStation, enemyHitClip, enemyHitEffectPrefab, enemyShakeDuration, enemyShakeMagnitude));
+        yield return StartCoroutine(AttackSequence(instantiatedEnemy, instantiatedPlayer, enemyHitClip, false));
 
         bool isDead = playerUnit.TakeDamage(enemyUnit.damage);
-        playerHUD.SetHP(playerUnit.currentHP);
+        playerHUD.SetHP(playerUnit.currentHP, playerUnit.maxHP); // Update player health bar
 
         if (isDead)
         {
@@ -220,9 +260,7 @@ public class BattleSystem : MonoBehaviour
             AskQuestion();
         }
     }
-
-
-    IEnumerator AttackSequence(Transform attacker, Transform target, AudioClip hitClip, GameObject hitEffectPrefab, float shakeDuration, float shakeMagnitude)
+    IEnumerator AttackSequence(GameObject attacker, GameObject target, AudioClip hitClip, bool isPlayerAttack)
     {
         // Play hit sound
         if (hitClip != null && audioSource != null)
@@ -236,23 +274,81 @@ public class BattleSystem : MonoBehaviour
             Debug.LogWarning("Hit clip or audio source is missing.");
         }
 
-        // Trigger hit effect
-        if (hitEffectPrefab != null)
+        // Move attacker forward
+        Vector3 originalPosition = attacker.transform.position;
+        Vector3 targetPosition = target.transform.position;
+        Vector3 attackPosition = Vector3.Lerp(originalPosition, targetPosition, 0.4f); // Move attacker farther
+
+        float elapsedTime = 0f;
+        float moveDuration = 0.05f; // Faster movement
+
+        while (elapsedTime < moveDuration)
         {
-            GameObject hitEffect = Instantiate(hitEffectPrefab, target.position, Quaternion.identity);
-            Destroy(hitEffect, 1f); // Destroy the effect after 1 second
+            attacker.transform.position = Vector3.Lerp(originalPosition, attackPosition, (elapsedTime / moveDuration));
+            elapsedTime += Time.deltaTime;
+            yield return null;
         }
 
-        // Trigger screen shake for attacker
-        yield return StartCoroutine(ScreenShake(attacker, shakeDuration, shakeMagnitude));
-    }
+        // Instantiate attack effect
+        GameObject attackEffect = Instantiate(isPlayerAttack ? playerAttackFXPrefab : enemyAttackFXPrefab, target.transform.position, Quaternion.identity);
+        Animator animator = attackEffect.GetComponent<Animator>();
+        if (animator != null)
+        {
+            animator.Play(0); // Play the default animation
+        }
+        Destroy(attackEffect, 1f); // Destroy the effect after 1 second
 
+        // Trigger screen shake
+        if (screenShake != null)
+        {
+            StartCoroutine(screenShake.Shake(0.1f, 0.1f)); // Adjust duration and magnitude as needed
+        }
+
+        // Move target back
+        Vector3 targetOriginalPosition = target.transform.position;
+        Vector3 targetBackPosition = targetOriginalPosition + (targetOriginalPosition - originalPosition).normalized * 0.1f; // Move target back a bit
+
+        elapsedTime = 0f;
+        while (elapsedTime < moveDuration)
+        {
+            target.transform.position = Vector3.Lerp(targetOriginalPosition, targetBackPosition, (elapsedTime / moveDuration));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Move attacker back to original position
+        elapsedTime = 0f;
+        while (elapsedTime < moveDuration)
+        {
+            attacker.transform.position = Vector3.Lerp(attackPosition, originalPosition, (elapsedTime / moveDuration));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Move target back to original position
+        elapsedTime = 0f;
+        while (elapsedTime < moveDuration)
+        {
+            target.transform.position = Vector3.Lerp(targetBackPosition, targetOriginalPosition, (elapsedTime / moveDuration));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        attacker.transform.position = originalPosition;
+        target.transform.position = targetOriginalPosition;
+    }
 
     void EndBattle()
     {
         foreach (Button btn in answerButtons)
         {
             btn.gameObject.SetActive(false);
+        }
+
+        // Stop the BGM
+        if (bgmSource != null)
+        {
+            bgmSource.Stop();
         }
 
         if (state == BattleState.WON)
@@ -273,7 +369,6 @@ public class BattleSystem : MonoBehaviour
         }
         else if (state == BattleState.LOST)
         {
-
             dialogueText.text = "You were defeated...";
             foreach (Button btn in answerButtons)
             {
@@ -281,7 +376,7 @@ public class BattleSystem : MonoBehaviour
             }
             backToHomeButton.gameObject.SetActive(true);
             backToHomeButton.GetComponentInChildren<TextMeshProUGUI>().text = "Try Again?";
-           
+
             if (loseClip != null && audioSource != null)
             {
                 audioSource.clip = loseClip;
@@ -295,50 +390,57 @@ public class BattleSystem : MonoBehaviour
         if (state == BattleState.WON)
         {
             string currentScene = SceneManager.GetActiveScene().name;
+            Debug.Log("Current Scene: " + currentScene);
 
             if (currentScene == "Level_0")
             {
+                Debug.Log("Loading Level 1 questions...");
                 QuestionManager.Instance.LoadQuestions("Level_1"); // Load Level 1 questions
-                SceneManager.LoadScene("Level_1");
+                StartCoroutine(LoadNextScene("Level_1"));
             }
             else if (currentScene == "Level_1")
             {
+                Debug.Log("Loading Level 2 questions...");
                 QuestionManager.Instance.LoadQuestions("Level_2"); // Load Level 2 questions
-                SceneManager.LoadScene("Level_2");
+                StartCoroutine(LoadNextScene("Level_2"));
             }
         }
     }
 
+    IEnumerator LoadNextScene(string sceneName)
+    {
+        yield return StartCoroutine(Transition(1f, true)); // Fade out
+        SceneManager.LoadScene(sceneName);
+        yield return StartCoroutine(Transition(1f, false)); // Fade in
+    }
 
+
+    void ShuffleQuestions(List<Question> questions)
+    {
+        for (int i = 0; i < questions.Count; i++)
+        {
+            Question temp = questions[i];
+            int randomIndex = Random.Range(i, questions.Count);
+            questions[i] = questions[randomIndex];
+            questions[randomIndex] = temp;
+        }
+    }
+
+    void UpdateProgress()
+    {
+        int totalQuestions = QuestionManager.Instance.CurrentQuestions.Count;
+        int answeredQuestions = totalQuestions - remainingQuestions.Count;
+        float progress = (float)answeredQuestions / totalQuestions;
+
+        progressText.text = $"Progress: {answeredQuestions}/{totalQuestions} ({progress * 100:F0}%)";
+ 
+    }
     public void BackToHome()
     {
         if (state == BattleState.LOST)
         {
             SceneManager.LoadScene("MainMenu");
         }
-
-    }
- 
-    IEnumerator ScreenShake(Transform target, float duration, float magnitude)
-    {
-        Vector3 originalPosition = target.localPosition;
-        float elapsed = 0.0f;
-
-        while (elapsed < duration)
-        {
-            float x = Random.Range(-1f, 1f) * magnitude;
-            float y = Random.Range(-1f, 1f) * magnitude;
-
-            target.localPosition = new Vector3(x, y, originalPosition.z);
-
-            elapsed += Time.deltaTime;
-
-            yield return null;
-        }
-
-        target.localPosition = originalPosition;
     }
 }
-
-
 
