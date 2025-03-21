@@ -16,22 +16,22 @@ public class BattleSystem : MonoBehaviour
     public AudioClip playerHitClip;
     public AudioClip enemyHitClip;
     private AudioSource audioSource;
-    public AudioSource bgmSource; 
+    public AudioSource bgmSource;
 
     private GameObject instantiatedPlayer;
     private GameObject instantiatedEnemy;
 
     public GameObject playerPrefab;
     public GameObject enemyPrefab;
-    public GameObject playerAttackFXPrefab; 
-    public GameObject enemyAttackFXPrefab; 
+    public GameObject playerAttackFXPrefab;
+    public GameObject enemyAttackFXPrefab;
 
     public Transform playerBattleStation;
     public Transform enemyBattleStation;
 
     public TextMeshProUGUI progressText;
-  
-    
+
+
 
     public float playerShakeDuration = 0.1f;
     public float playerShakeMagnitude = 0.1f;
@@ -433,7 +433,7 @@ public class BattleSystem : MonoBehaviour
         float progress = (float)answeredQuestions / totalQuestions;
 
         progressText.text = $"Progress: {answeredQuestions}/{totalQuestions} ({progress * 100:F0}%)";
- 
+
     }
     public void BackToHome()
     {

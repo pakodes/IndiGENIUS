@@ -180,7 +180,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 5
   m_Sprite: {fileID: -894439679, guid: 72711d465c4eda647962748ef79121a1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -1599,8 +1599,8 @@ MonoBehaviour:
   playerHitClip: {fileID: 8300000, guid: 2ba7f912ca2b242409fa8a78a98c3da0, type: 3}
   enemyHitClip: {fileID: 8300000, guid: 7ff4674483983094095903cae000ce9d, type: 3}
   bgmSource: {fileID: 1118076781}
-  playerPrefab: {fileID: 596771771364213368, guid: 2cc5a80bf18d59d4d8d2e6363a4a14bd, type: 3}
-  enemyPrefab: {fileID: 4885797029024065, guid: 6ef90dd937c6b064597a8184bb1df285, type: 3}
+  playerPrefab: {fileID: 596771771364213368, guid: 0995e41f3b7481d48938e4f4c1769c92, type: 3}
+  enemyPrefab: {fileID: 4885797029024065, guid: 906e0e246f6996b44adcdcf22a9de9aa, type: 3}
   playerAttackFXPrefab: {fileID: 1449770867}
   enemyAttackFXPrefab: {fileID: 2348615}
   playerBattleStation: {fileID: 263743679}
@@ -4007,7 +4007,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 5
   m_Sprite: {fileID: 1734827793, guid: 72711d465c4eda647962748ef79121a1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

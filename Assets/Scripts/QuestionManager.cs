@@ -164,28 +164,39 @@ public class QuestionManager : MonoBehaviour
                 "Microprocessor")
             };
         }
+
+        ShuffleQuestions(CurrentQuestions);
+        CurrentQuestions = RandomizeAnswers(CurrentQuestions);
         Debug.Log("Questions loaded: " + CurrentQuestions.Count);
     }
 
 
+    private void ShuffleQuestions(List<Question> questions)
+    {
+        System.Random rnd = new System.Random();
+        for (int i = questions.Count - 1; i > 0; i--)
+        {
+            int j = rnd.Next(i + 1);
+            (questions[i], questions[j]) = (questions[j], questions[i]);
+        }
+    }
+
     private List<Question> RandomizeAnswers(List<Question> questions)
     {
         List<Question> randomizedQuestions = new List<Question>();
+        System.Random rnd = new System.Random();
 
         foreach (Question q in questions)
         {
             List<string> choices = new List<string>(q.choices);
-            string correctAnswer = q.correctAnswer;
 
-            // Shuffle the choices
-            System.Random rnd = new System.Random();
             for (int i = choices.Count - 1; i > 0; i--)
             {
                 int j = rnd.Next(i + 1);
                 (choices[i], choices[j]) = (choices[j], choices[i]);
             }
 
-            randomizedQuestions.Add(new Question(q.questionText, choices.ToArray(), correctAnswer));
+            randomizedQuestions.Add(new Question(q.questionText, choices.ToArray(), q.correctAnswer));
         }
 
         return randomizedQuestions;

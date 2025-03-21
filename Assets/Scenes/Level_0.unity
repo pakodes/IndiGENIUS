@@ -687,7 +687,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 5
   m_Sprite: {fileID: 1734827793, guid: 72711d465c4eda647962748ef79121a1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -1877,7 +1877,7 @@ MonoBehaviour:
   loseClip: {fileID: 8300000, guid: c9619918925b5794eaad0b177f193ff1, type: 3}
   victoryClip: {fileID: 8300000, guid: d48f036108de9c4458534257c7823ec9, type: 3}
   playerHitClip: {fileID: 8300000, guid: 2ba7f912ca2b242409fa8a78a98c3da0, type: 3}
-  enemyHitClip: {fileID: 8300000, guid: 7ff4674483983094095903cae000ce9d, type: 3}
+  enemyHitClip: {fileID: 8300000, guid: 2ba7f912ca2b242409fa8a78a98c3da0, type: 3}
   bgmSource: {fileID: 1118076781}
   playerPrefab: {fileID: 596771771364213368, guid: 7076641172f5e2d46b2e1f55a17dead8, type: 3}
   enemyPrefab: {fileID: 4885797029024065, guid: 549a21418680e4f4ea69ccd12e5d47de, type: 3}
@@ -3952,7 +3952,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 5
   m_Sprite: {fileID: -2041457892, guid: 72711d465c4eda647962748ef79121a1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -4118,7 +4118,7 @@ RectTransform:
   m_GameObject: {fileID: 1530153168}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 90}
-  m_LocalScale: {x: 0.010677566, y: 0.010677566, z: 0.010677566}
+  m_LocalScale: {x: 0.010677565, y: 0.010677565, z: 0.010677565}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -4126,7 +4126,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1920.0001, y: 936.543}
+  m_SizeDelta: {x: 1920.0002, y: 936.54297}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1530153170
 MonoBehaviour:
