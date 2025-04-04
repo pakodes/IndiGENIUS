@@ -144,23 +144,23 @@ public class QuestionManager : MonoBehaviour
             CurrentQuestions = new List<Question>
             {
                  new Question("What was the programming language designed to program the Z3?",
-                new string[] { "Plankalkul", "X", "X", "X" },
+                new string[] { "Plankalkul", "Plankcalcul", "Z3-DOS", "Konrad" },
                 "Plankalkul"),
                 // 2
                 new Question("What was the test that defined the standard for machine intelligence?",
-                new string[] { "Turing Test", "X", "X", "X" },
+                new string[] { "Turing Test", "Intellisense", "Intellitest", "Smart Test" },
                 "Turing Test"),
                 // 3
                 new Question("An early programming language used to translate instructions into machine code automatically",
-                new string[] { "X", "X", "X", "Autocode" },
+                new string[] { "Shortcode", "Machine Code", "Auto Machine", "Autocode" },
                 "Autocode"),
                 // 4
                 new Question("What is the computing method that uses quantum mechanics?",
-                new string[] { "Quantum Computing", "X", "X", "X" },
+                new string[] { "Quantum Computing", "Quantum Method", "Quantum Physics", "Quantum Engineering" },
                 "Quantum Computing"),
                 // 5
                 new Question("It is a small, integrated circuit that performs the functions of a computer's CPU",
-                new string[] { "Microprocessor", "X", "X", "X" },
+                new string[] { "Microprocessor", "Motherboard", "Microchip", "CPU Core" },
                 "Microprocessor")
             };
         }
