@@ -48,7 +48,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitName: Brain
   unitLevel: 10
-  damage: 30
+  damage: 40
   maxHP: 100
   currentHP: 100
 --- !u!212 &836531823527712347

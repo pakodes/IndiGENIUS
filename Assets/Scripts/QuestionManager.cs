@@ -186,6 +186,7 @@ public class QuestionManager : MonoBehaviour
         }
 
 
+
         ShuffleQuestions(CurrentQuestions);
         CurrentQuestions = RandomizeAnswers(CurrentQuestions);
         Debug.Log("Questions loaded: " + CurrentQuestions.Count);
