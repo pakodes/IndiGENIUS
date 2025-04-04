@@ -143,7 +143,7 @@ public class QuestionManager : MonoBehaviour
         {
             CurrentQuestions = new List<Question>
             {
-                 new Question("What was the programming language designed to program the Z3?",
+                new Question("What was the programming language designed to program the Z3?",
                 new string[] { "Plankalkul", "Plankcalcul", "Z3-DOS", "Konrad" },
                 "Plankalkul"),
                 // 2
@@ -161,9 +161,30 @@ public class QuestionManager : MonoBehaviour
                 // 5
                 new Question("It is a small, integrated circuit that performs the functions of a computer's CPU",
                 new string[] { "Microprocessor", "Motherboard", "Microchip", "CPU Core" },
-                "Microprocessor")
+                "Microprocessor"),
+                // 6
+                new Question("Which programming language is known for its use in artificial intelligence and symbolic processing?",
+                new string[] { "Lisp", "Python", "Java", "C++" },
+                "Lisp"),
+                // 7
+                new Question("What is the name of the first high-level programming language?",
+                new string[] { "Fortran", "COBOL", "BASIC", "Pascal" },
+                "Fortran"),
+                // 8
+                new Question("Which programming language was developed by Bjarne Stroustrup?",
+                new string[] { "C++", "Java", "Python", "Ruby" },
+                "C++"),
+                // 9
+                new Question("What is the main purpose of the SQL language?",
+                new string[] { "Database management", "Web development", "System programming", "Game development" },
+                "Database management"),
+                // 10
+                new Question("Which programming language is known for its use in web development and is often paired with HTML and CSS?",
+                new string[] { "JavaScript", "Python", "Java", "C#" },
+                "JavaScript")
             };
         }
+
 
         ShuffleQuestions(CurrentQuestions);
         CurrentQuestions = RandomizeAnswers(CurrentQuestions);
