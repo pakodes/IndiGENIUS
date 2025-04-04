@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b18a9f2eaa86064eb4a9e0697515f6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitName: AdaTest
+  unitName: Ada
   unitLevel: 10
   damage: 25
   maxHP: 80
