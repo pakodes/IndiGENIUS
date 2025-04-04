@@ -387,8 +387,18 @@ public class BattleSystem : MonoBehaviour
             {
                 btn.gameObject.SetActive(false);
             }
-            backToHomeButton.gameObject.SetActive(true);
-            backToHomeButton.GetComponentInChildren<TextMeshProUGUI>().text = "Try Again?";
+
+            string currentScene = SceneManager.GetActiveScene().name;
+            if (currentScene == "Level_2")
+            {
+                // Automatically transition to the MainMenu scene
+                StartCoroutine(LoadNextScene("MainMenu"));
+            }
+            else
+            {
+                backToHomeButton.gameObject.SetActive(true);
+                backToHomeButton.GetComponentInChildren<TextMeshProUGUI>().text = "Try Again?";
+            }
 
             if (loseClip != null && audioSource != null)
             {
@@ -397,6 +407,9 @@ public class BattleSystem : MonoBehaviour
             }
         }
     }
+
+
+
 
     public void NextRound()
     {
@@ -452,8 +465,11 @@ public class BattleSystem : MonoBehaviour
     {
         if (state == BattleState.LOST)
         {
+            Debug.Log("Try Again button clicked. Returning to MainMenu.");
             SceneManager.LoadScene("MainMenu");
         }
     }
+
 }
+
 
