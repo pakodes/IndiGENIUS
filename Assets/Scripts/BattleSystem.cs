@@ -211,13 +211,16 @@ public class BattleSystem : MonoBehaviour
         // Trigger player attack sequence
         yield return StartCoroutine(AttackSequence(instantiatedPlayer, instantiatedEnemy, playerHitClip, true));
 
+        Debug.Log("Enemy HP before damage: " + enemyUnit.currentHP);
         bool isDead = enemyUnit.TakeDamage(playerUnit.damage);
+        Debug.Log("Enemy HP after damage: " + enemyUnit.currentHP);
         enemyHUD.SetHP(enemyUnit.currentHP, enemyUnit.maxHP); // Update enemy health bar
 
         currentQuestion = null;
 
         if (isDead)
         {
+            Debug.Log("Enemy is dead. Ending battle.");
             state = BattleState.WON;
             EndBattle();
         }
@@ -226,6 +229,7 @@ public class BattleSystem : MonoBehaviour
             AskQuestion();
         }
     }
+
 
     IEnumerator PlayerWrongAnswer()
     {
@@ -337,7 +341,6 @@ public class BattleSystem : MonoBehaviour
         attacker.transform.position = originalPosition;
         target.transform.position = targetOriginalPosition;
     }
-
     void EndBattle()
     {
         foreach (Button btn in answerButtons)
@@ -358,8 +361,18 @@ public class BattleSystem : MonoBehaviour
             {
                 btn.gameObject.SetActive(false);
             }
-            nextRoundButton.gameObject.SetActive(true);
-            nextRoundButton.GetComponentInChildren<TextMeshProUGUI>().text = "Next Round";
+
+            string currentScene = SceneManager.GetActiveScene().name;
+            if (currentScene == "Level_2")
+            {
+                // Automatically transition to the Ending scene
+                StartCoroutine(LoadNextScene("Ending"));
+            }
+            else
+            {
+                nextRoundButton.gameObject.SetActive(true);
+                nextRoundButton.GetComponentInChildren<TextMeshProUGUI>().text = "Next Round";
+            }
 
             if (victoryClip != null && audioSource != null)
             {
